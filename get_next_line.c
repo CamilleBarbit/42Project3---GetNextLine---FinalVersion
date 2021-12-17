@@ -17,8 +17,8 @@ int	ft_checkendofline(char *buffer_save)
 	int	i;
 
 	i = 0;
-	if (!buffer_save)
-		return (0);
+	if (buffer_save == NULL)
+		return (1);
 	while (buffer_save[i])
 	{
 		if (buffer_save[i] == '\n')
@@ -57,11 +57,10 @@ char	*ft_get_buffer_save(char *buffer_save)
 		{
 			i += 1;
 			buffer_save = ft_substr(buffer_save, i, (strlen - i) + 1);
+			break ;
 		}
 		else if (buffer_save[i + 1] == '\0')
-		{
 			buffer_save[0] = '\0';
-		}
 		i++;
 	}
 	return (buffer_save);
@@ -76,22 +75,23 @@ char	*ft_read(int fd, char *buffer_read)
 	ret = 1;
 	while (ret > 0)
 	{
+		if (ft_checkendofline(buffer_save) == 0)
+			break ;
 		ret = read(fd, buffer_read, BUFFER_SIZE);
 		if (ret <= 0)
-			return (NULL) ;
+			return (NULL);
 		buffer_read[ret] = '\0';
 		if (buffer_save == NULL)
 			buffer_save = ft_strdup(buffer_read);
 		else
 			buffer_save = ft_strjoin(buffer_save, buffer_read);
-		if (ft_checkendofline(buffer_save) == 0)
-			break ;
+		
 	}
 	line = ft_print_line(buffer_save);
 	buffer_save = ft_get_buffer_save(buffer_save);
 	if (line == 0)
 		free(line);
-	if ((ret == 0 && line == NULL) || buffer_save[0] == '\0')
+	if (ret == 0 && line == NULL && buffer_save == NULL)
 		free(buffer_save);
 	return (line);
 }
@@ -104,7 +104,7 @@ char	*get_next_line(int fd)
 	if (fd > 1024 || fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	line = ft_read(fd, buffer_read);
-	if (line == 0)
+	if (line == NULL)
 		free(line);
 	return (line);
 }
